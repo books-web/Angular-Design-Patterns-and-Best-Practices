@@ -7,6 +7,7 @@ import { EntryItem } from '../../diary/entry-item/entry-item';
 import { ExerciseSet, ExerciseSetList } from '../../diary/interfaces/exercise-set';
 import { ListEntries } from '../list-entries/list-entries';
 import { NewItemButton } from "../new-item-button/new-item-button";
+import { ExerciseSetsService } from '../services/exercise-sets-service';
 
 @Component({
   selector: 'app-diary',
@@ -15,43 +16,17 @@ import { NewItemButton } from "../new-item-button/new-item-button";
   styleUrl: './diary.css',
 })
 export class Diary {
-
-  exerciseList: ExerciseSetList = [
-    {
-      id: '1', date: new Date(), exercise: 'Deadlift', reps: 15, sets:
-        3
-    },
-    {
-      id: '2', date: new Date(), exercise: 'Squat', reps: 15, sets: 3
-    },
-    {
-      id: '3', date: new Date(), exercise: 'Barbell row', reps: 15,
-      sets: 3
-    },
-  ];
-
-  newList() {
-    this.exerciseList = [
-      {
-        id: '1', date: new Date(), exercise: 'Deadlift', reps: 15,
-        sets: 3
-      },
-      {
-        id: '2', date: new Date(), exercise: 'Squat', reps: 15, sets: 3
-      },
-      {
-        id: '3', date: new Date(), exercise: 'Barbell row', reps: 15,
-        sets: 3
-      },
-      {
-        id: '4', date: new Date(), exercise: 'Leg Press', reps: 15,
-        sets: 3
-      },
-    ];
+  exerciseList: ExerciseSetList;
+  
+  constructor(private exerciseSetsService: ExerciseSetsService) {
+    this.exerciseList = this.exerciseSetsService.getInitialList();
   }
 
+  newList() {
+    this.exerciseList = this.exerciseSetsService.refreshList();
+  }
   addExercise(newSet: ExerciseSet) {
-    this.exerciseList.push(newSet);
+    this.exerciseList = this.exerciseSetsService.addNewItem(newSet);
   }
 
   deleteItem(id: string) {
