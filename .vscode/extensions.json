@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Angular.ng-template",
+        "donjayamanne.git-extension-pack",
+        "editorconfig.editorconfig"
+    ]
+}
