@@ -1,9 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
-import { EntryItem } from '../../diary/entry-item/entry-item';
+import { Component, inject, OnInit } from '@angular/core';
 import { ExerciseSet, ExerciseSetList } from '../../diary/interfaces/exercise-set';
 import { ListEntries } from '../list-entries/list-entries';
 import { NewItemButton } from "../new-item-button/new-item-button";
@@ -15,30 +10,39 @@ import { ExerciseSetsService } from '../services/exercise-sets-service';
   templateUrl: './diary.html',
   styleUrl: './diary.css',
 })
-export class Diary {
-  exerciseList: ExerciseSetList;
-  
-  constructor(private exerciseSetsService: ExerciseSetsService) {
-    this.exerciseList = this.exerciseSetsService.getInitialList();
+export class Diary implements OnInit {
+  private exerciseSetsService = inject(ExerciseSetsService);
+
+  exerciseList!: ExerciseSetList;
+
+  ngOnInit(): void {
+    this.exerciseSetsService
+      .getInitialList()
+      .subscribe((dataApi) => (this.exerciseList = dataApi.items));
   }
 
   newList() {
-    this.exerciseList = this.exerciseSetsService.refreshList();
+    this.exerciseSetsService
+      .refreshList()
+      .subscribe((dataApi) => (this.exerciseList = dataApi.items));
   }
   addExercise(newSet: ExerciseSet) {
-    this.exerciseList = this.exerciseSetsService.addNewItem(newSet);
+    this.exerciseSetsService
+      .addNewItem(newSet)
+      .subscribe((_) => this.newList());
   }
-
   deleteItem(id: string) {
-    this.exerciseList = this.exerciseList.filter((item) => item.id !==
-      id);
+    this.exerciseSetsService.deleteItem(id).subscribe(() => {
+      this.exerciseList = this.exerciseList.filter(
+        (exerciseSet) => exerciseSet.id !== id
+      );
+    });
   }
-  newRep(exerciseSet: ExerciseSet) {
-    const id = exerciseSet.id;
-    const i = this.exerciseList.findIndex((item) => item.id === id);
-    if (i >= 0) {
-      this.exerciseList[i] = { ...exerciseSet };
-    }
+  newRep(updateSet: ExerciseSet) {
+    const id = updateSet.id ?? '';
+    this.exerciseSetsService
+      .updateItem(id, updateSet)
+      .subscribe();
   }
 }
 
