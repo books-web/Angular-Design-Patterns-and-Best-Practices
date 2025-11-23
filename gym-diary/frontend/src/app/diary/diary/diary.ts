@@ -3,6 +3,7 @@ import { ExerciseSet, ExerciseSetList } from '../../diary/interfaces/exercise-se
 import { ListEntries } from '../list-entries/list-entries';
 import { NewItemButton } from "../new-item-button/new-item-button";
 import { ExerciseSetsService } from '../services/exercise-sets-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-diary',
@@ -12,6 +13,8 @@ import { ExerciseSetsService } from '../services/exercise-sets-service';
 })
 export class Diary implements OnInit {
   private exerciseSetsService = inject(ExerciseSetsService);
+
+  private router = inject(Router)
 
   exerciseList!: ExerciseSetList;
 
@@ -27,9 +30,16 @@ export class Diary implements OnInit {
       .subscribe((dataApi) => (this.exerciseList = dataApi.items));
   }
   addExercise(newSet: ExerciseSet) {
-    this.exerciseSetsService
-      .addNewItem(newSet)
-      .subscribe((_) => this.newList());
+    /*  this.exerciseSetsService
+       .addNewItem(newSet)
+       .subscribe((_) => this.newList()); */
+    this.router.navigate(['/new-template'])
+  }
+   addExerciseReactive(newSet: ExerciseSet) {
+    /*  this.exerciseSetsService
+       .addNewItem(newSet)
+       .subscribe((_) => this.newList()); */
+    this.router.navigate(['/new-reactive'])
   }
   deleteItem(id: string) {
     this.exerciseSetsService.deleteItem(id).subscribe(() => {
