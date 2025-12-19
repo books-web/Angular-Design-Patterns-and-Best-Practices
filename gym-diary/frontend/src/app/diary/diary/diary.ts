@@ -30,16 +30,7 @@ export class Diary implements OnInit {
       .subscribe((dataApi) => (this.exerciseList = dataApi.items));
   }
   addExercise(newSet: ExerciseSet) {
-    /*  this.exerciseSetsService
-       .addNewItem(newSet)
-       .subscribe((_) => this.newList()); */
-    this.router.navigate(['/new-template'])
-  }
-   addExerciseReactive(newSet: ExerciseSet) {
-    /*  this.exerciseSetsService
-       .addNewItem(newSet)
-       .subscribe((_) => this.newList()); */
-    this.router.navigate(['/new-reactive'])
+    this.router.navigate(['/diary/entry']);
   }
   deleteItem(id: string) {
     this.exerciseSetsService.deleteItem(id).subscribe(() => {
@@ -48,11 +39,10 @@ export class Diary implements OnInit {
       );
     });
   }
-  newRep(updateSet: ExerciseSet) {
+  editEntry(updateSet: ExerciseSet) {
     const id = updateSet.id ?? '';
-    this.exerciseSetsService
-      .updateItem(id, updateSet)
-      .subscribe();
+    this.router.navigate([`/diary/entry/${id}`]);
   }
+
 }
 

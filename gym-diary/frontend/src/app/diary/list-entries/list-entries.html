@@ -3,7 +3,7 @@
     <ul class="rounded border shadow">
         <li *ngFor="let item of exerciseList; index as i; trackBy: itemTrackBy">
             <app-entry-item [exercise-set]="item" (deleteEvent)="deleteEvent.emit($event)"
-                (newRepEvent)="newRepEvent.emit($event)" />
+                (newRepEvent)="newRepEvent.emit($event)" (editEvent)="editEvent.emit($event)" />
         </li>
     </ul>
 </section>

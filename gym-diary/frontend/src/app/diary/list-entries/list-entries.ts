@@ -14,6 +14,7 @@ export class ListEntries {
   @Input() exerciseList!: ExerciseSetList;
 
   @Output() newRepEvent = new EventEmitter<ExerciseSet>();
+  @Output() editEvent = new EventEmitter<ExerciseSet>();
   @Output() deleteEvent = new EventEmitter<string>();
 
   itemTrackBy(index: number, item: ExerciseSet) {
