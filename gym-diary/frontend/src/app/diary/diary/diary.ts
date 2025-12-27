@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ExerciseSet, ExerciseSetList } from '../../diary/interfaces/exercise-set';
 import { ListEntries } from '../list-entries/list-entries';
 import { NewItemButton } from "../new-item-button/new-item-button";
 import { ExerciseSetsService } from '../services/exercise-sets-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-diary',
@@ -11,35 +11,63 @@ import { Router } from '@angular/router';
   templateUrl: './diary.html',
   styleUrl: './diary.css',
 })
-export class Diary implements OnInit {
+export class Diary {
   private exerciseSetsService = inject(ExerciseSetsService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  private router = inject(Router)
+  exerciseList = signal<ExerciseSetList>([]);
+  isLoading = signal(false);
 
-  exerciseList!: ExerciseSetList;
-
-  ngOnInit(): void {
-    this.exerciseSetsService
-      .getInitialList()
-      .subscribe((dataApi) => (this.exerciseList = dataApi.items));
+  constructor() {
+    console.log('loadInitialList');
+    this.loadInitialList();
   }
 
-  newList() {
-    this.exerciseSetsService
-      .refreshList()
-      .subscribe((dataApi) => (this.exerciseList = dataApi.items));
-  }
-  addExercise(newSet: ExerciseSet) {
-    this.router.navigate(['/diary/entry']);
-  }
-  deleteItem(id: string) {
-    this.exerciseSetsService.deleteItem(id).subscribe(() => {
-      this.exerciseList = this.exerciseList.filter(
-        (exerciseSet) => exerciseSet.id !== id
-      );
+  private loadInitialList(): void {
+    this.isLoading.set(true);
+    this.route.data.subscribe({
+      next: (dataApi) => {
+        console.log('Resolved dataApi:', dataApi);
+        this.exerciseList.set(dataApi['diaryApi']['items']);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load exercises:', err);
+        this.isLoading.set(false);
+      },
     });
   }
-  editEntry(updateSet: ExerciseSet) {
+
+  newList(): void {
+    this.isLoading.set(true);
+    this.exerciseSetsService.refreshList().subscribe({
+      next: (dataApi) => {
+        this.exerciseList.set(dataApi['items']);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to refresh exercises:', err);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  addExercise(newSet: ExerciseSet): void {
+    this.router.navigate(['/diary/entry']);
+  }
+
+  deleteItem(id: string): void {
+    this.exerciseSetsService.deleteItem(id).subscribe({
+      next: () => {
+        const currentList = this.exerciseList();
+        this.exerciseList.set(currentList.filter((item) => item.id !== id));
+      },
+      error: (err) => console.error('Failed to delete exercise:', err),
+    });
+  }
+
+  editEntry(updateSet: ExerciseSet): void {
     const id = updateSet.id ?? '';
     this.router.navigate([`/diary/entry/${id}`]);
   }

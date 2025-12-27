@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ExerciseSet } from '../interfaces/exercise-set';
 import { DatePipe } from '@angular/common';
 
@@ -9,17 +9,17 @@ import { DatePipe } from '@angular/common';
   styleUrl: './entry-item.css',
 })
 export class EntryItem {
-  @Input('exercise-set') exerciseSet!: ExerciseSet;
+  exerciseSet = input<ExerciseSet>(null!);
 
-  @Output() newRepEvent = new EventEmitter<ExerciseSet>();
-  @Output() editEvent = new EventEmitter<ExerciseSet>();
-  @Output() deleteEvent = new EventEmitter<string>();
+  newRepEvent = output<ExerciseSet>();
+  editEvent = output<ExerciseSet>();
+  deleteEvent = output<string>();
 
-  delete() {
-    this.deleteEvent.emit(this.exerciseSet.id);
+  delete(): void {
+    this.deleteEvent.emit(this.exerciseSet().id!);
   }
 
-  editEntry() {
-    this.editEvent.emit(this.exerciseSet);
+  editEntry(): void {
+    this.editEvent.emit(this.exerciseSet());
   }
 }

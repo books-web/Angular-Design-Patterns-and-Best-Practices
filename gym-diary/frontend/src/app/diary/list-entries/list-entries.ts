@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { ExerciseSet, ExerciseSetList } from '../interfaces/exercise-set';
 import { EntryItem } from "../entry-item/entry-item";
 
@@ -10,15 +10,13 @@ import { EntryItem } from "../entry-item/entry-item";
   styleUrl: './list-entries.css',
 })
 export class ListEntries {
+  exerciseList = input<ExerciseSetList>([]);
 
-  @Input() exerciseList!: ExerciseSetList;
-
-  @Output() newRepEvent = new EventEmitter<ExerciseSet>();
-  @Output() editEvent = new EventEmitter<ExerciseSet>();
-  @Output() deleteEvent = new EventEmitter<string>();
+  newRepEvent = output<ExerciseSet>();
+  editEvent = output<ExerciseSet>();
+  deleteEvent = output<string>();
 
   itemTrackBy(index: number, item: ExerciseSet) {
     return item.id;
   }
-
 }

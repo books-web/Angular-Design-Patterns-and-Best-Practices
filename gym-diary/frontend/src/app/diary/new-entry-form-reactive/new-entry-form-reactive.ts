@@ -1,7 +1,7 @@
 import { CommonModule, JsonPipe } from '@angular/common';
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, signal, effect } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ExerciseSet } from '../interfaces/exercise-set';
 import { ExerciseSetsService } from '../services/exercise-sets-service';
 
@@ -11,48 +11,73 @@ import { ExerciseSetsService } from '../services/exercise-sets-service';
   templateUrl: './new-entry-form-reactive.html',
   styleUrl: './new-entry-form-reactive.css',
 })
-export class NewEntryFormReactive implements OnInit {
+export class NewEntryFormReactive {
   private formBuilder = inject(NonNullableFormBuilder);
   private exerciseSetsService = inject(ExerciseSetsService);
-
   private router = inject(Router);
 
-  // Using  withComponentInputBinding
-  id = input.required<string>()
+  private route = inject(ActivatedRoute);
+  
+  id = input.required<string>();
+  isLoading = signal(false);
 
-  public entryForm = this.formBuilder.group({
+  entryForm = this.formBuilder.group({
     date: [new Date(), Validators.required],
     exercise: ['', Validators.required],
     sets: [0, [Validators.required, Validators.min(0)]],
     reps: [0, [Validators.required, Validators.min(0)]],
   });
 
-  ngOnInit(): void {
-    if (this.id()) {
-      this.exerciseSetsService
-        .getItem(this.id())
-        .subscribe((entry) => this.updateForm(entry));
-    }
+  constructor() {
+    effect(() => {
+      const currentId = this.id();
+      if (currentId) {
+        this.isLoading.set(true);
+        this.route.data.subscribe({
+          next: ({entry}) => {
+            this.updateForm(entry);
+            this.isLoading.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load entry:', err);
+            this.isLoading.set(false);
+          },
+        });
+      }
+    });
   }
 
-  updateForm(entry: ExerciseSet): void {
-    // One detail here is that we are using the destructuring assignment to remove the id field from the 
-    // object because it does not exist in the form’s data model.
+  private updateForm(entry: ExerciseSet): void {
     let { id: _, ...entryForm } = entry;
     this.entryForm.setValue(entryForm);
   }
 
-  newEntry() {
+  newEntry(): void {
     if (this.entryForm.valid) {
+      this.isLoading.set(true);
       const newEntry = { ...this.entryForm.value };
       if (this.id()) {
-        this.exerciseSetsService
-          .updateItem(this.id(), newEntry)
-          .subscribe((entry) => this.router.navigate(['/diary']));
+        this.exerciseSetsService.updateItem(this.id(), newEntry).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.router.navigate(['/diary']);
+          },
+          error: (err) => {
+            console.error('Failed to update entry:', err);
+            this.isLoading.set(false);
+          },
+        });
       } else {
-        this.exerciseSetsService
-          .addNewItem(newEntry)
-          .subscribe((entry) => this.router.navigate(['/diary']));
+        this.exerciseSetsService.addNewItem(newEntry).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.router.navigate(['/diary']);
+          },
+          error: (err) => {
+            console.error('Failed to create entry:', err);
+            this.isLoading.set(false);
+          },
+        });
       }
     }
   }

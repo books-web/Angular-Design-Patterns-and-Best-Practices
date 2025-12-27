@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
+import { AuthService } from './login/services/auth';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +10,11 @@ import { RouterOutlet, RouterLink } from '@angular/router';
   styleUrls: ['./app.css'],
 })
 export class App {
-  protected readonly title = signal('ch02');
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  
   logout() {
-    // placeholder logout — implement actual logout logic later
-    console.log('logout clicked');
+    this.authService.logout();
+    this.router.navigate(['./login']);
   }
 }

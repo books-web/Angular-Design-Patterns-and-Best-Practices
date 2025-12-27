@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { ExerciseSet } from '../interfaces/exercise-set';
 
 @Component({
@@ -8,9 +8,9 @@ import { ExerciseSet } from '../interfaces/exercise-set';
   styleUrl: './new-item-button.css',
 })
 export class NewItemButton {
-  @Output() newExerciseEvent = new EventEmitter<ExerciseSet>();
+  newExerciseEvent = output<ExerciseSet>();
 
-  addNewExercise() {
+  addNewExercise(): void {
     const id = Date.now().toString();
     const date = new Date();
     const reps = 10;

@@ -4,28 +4,27 @@ import { NewEntryFormTemplate } from './diary/new-entry-form-template/new-entry-
 import { NewEntryFormReactive } from './diary/new-entry-form-reactive/new-entry-form-reactive';
 import { HomeComponent } from './home/home/home.component';
 import { ErrorPage } from './error-page/error-page';
+import { Login } from './login/login/login';
+import { authGuard } from './login/services/auth.guard';
 
 export const routes: Routes = [
     { path: '', pathMatch: 'full', redirectTo: 'home', },
+    {
+        path: 'diary',
+        canActivate: [authGuard],
+        loadChildren: () => {
+            return import('./diary/diary.routes').then((m) => m.routes);
+        }
+    },
     {
         path: 'home',
         component: HomeComponent,
         title: 'Home',
     },
+
     {
-        path: 'diary',
-        component: Diary,
-        title: 'Diary',
-    },
-    {
-        path: 'diary/entry',
-        component: NewEntryFormReactive,
-        title: 'Entry Form',
-    },
-    {
-        path: 'diary/entry/:id',
-        component: NewEntryFormReactive,
-        title: 'Edit Entry',
+        path: 'login',
+        component: Login,
     },
     { path: 'error', component: ErrorPage },
     { path: '**', redirectTo: '/error' },

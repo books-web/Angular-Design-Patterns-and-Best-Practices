@@ -5,7 +5,7 @@
     </div>
   </header>
   <main class="mx-auto mt-8 max-w-6xl px-4">
-    <app-list-entries [exerciseList]="exerciseList" (deleteEvent)="deleteItem($event)"
+    <app-list-entries [exerciseList]="exerciseList()" (deleteEvent)="deleteItem($event)"
       (editEvent)="editEntry($event)" />
     <app-new-item-button (newExerciseEvent)="addExercise($event)" />
     <br />
